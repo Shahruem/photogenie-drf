@@ -5,12 +5,16 @@ from rest_framework import serializers
 from authentication.models import User
 
 
-class UserSerializer(serializers.Serializer):
-    username = serializers.CharField(max_length=128)
-    password = serializers.CharField(write_only=True)
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'username']
+
+    def run_validation(self, data=None):
+        pass
 
 
-class SignupUserSerializer(serializers.ModelSerializer):
+class SignupSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['username', 'email', 'password', 'first_name', 'last_name']
