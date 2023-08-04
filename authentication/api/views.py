@@ -22,6 +22,6 @@ class LogoutAPIView(TokenBlacklistView):
 
     def post(self, request, *args, **kwargs):
         super().post(request, *args, **kwargs)
-        return Response({'detail': 'Refresh token blacklisted.'}, status=status.HTTP_200_OK)
+        return Response({'detail': 'Refresh token blacklisted.'}, status=status.HTTP_204_NO_CONTENT)
 
 
