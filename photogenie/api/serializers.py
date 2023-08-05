@@ -3,8 +3,7 @@ from taggit_serializer.serializers import (TaggitSerializer,
                                            TagListSerializerField)
 
 from authentication.api.serializers import UserSerializer
-from photogenie.models import Category, Post
-from rest_framework.fields import CurrentUserDefault
+from photogenie.models import Category, UserPost
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -13,44 +12,55 @@ class CategorySerializer(serializers.ModelSerializer):
         fields = ['id', 'name']
 
 
-class CreatePostSerializer(TaggitSerializer, serializers.ModelSerializer):
-    categories = serializers.ListSerializer(child=serializers.IntegerField())
-    published_by = serializers.IntegerField(required=False)
-    tags = TagListSerializerField()
-
-    class Meta:
-        model = Post
-        fields = ['published_by', 'categories', 'tags', 'description', 'image']
-
-    def create(self, validated_data):
-        category_ids = validated_data.pop('categories', [])
-        published_by_id = validated_data.pop('published_by')
-        tags = validated_data.pop('tags', [])
-
-        post = Post.objects.create(
-            published_by_id=published_by_id,
-            description=validated_data['description'],
-            image=validated_data['image']
-        )
-
-        for category_id in category_ids:
-            category = Category.objects.get(pk=category_id)
-            post.categories.add(category)
-
-        for tag in tags:
-            post.tags.add(tag)
-
-        return post
-
-
 class PostSerializer(TaggitSerializer, serializers.ModelSerializer):
     categories = CategorySerializer(many=True)
     published_by = UserSerializer()
     tags = TagListSerializerField()
 
     class Meta:
-        model = Post
+        model = UserPost
         fields = '__all__'
 
 
+class GeneratePostSerializer(TaggitSerializer, serializers.Serializer):
+    categories = serializers.ListSerializer(child=serializers.IntegerField())
+    published_by = serializers.IntegerField(required=False)
+    tags = TagListSerializerField()
+    description = serializers.CharField()
+    image = serializers.ImageField()
 
+    def create(self, validated_data):
+        category_ids = validated_data.pop('categories', [])
+        published_by_id = validated_data.pop('published_by')
+        tags = validated_data.pop('tags', [])
+
+        post = UserPost.objects.create(
+            published_by_id=published_by_id,
+            description=validated_data['description'],
+            image=validated_data['image']
+        )
+        for category_id in category_ids:
+            category = Category.objects.get(pk=category_id)
+            post.categories.add(category)
+        for tag in tags:
+            post.tags.add(tag)
+
+        return post
+
+    def update(self, instance, validated_data):
+        instance.description = validated_data.get('description', instance.description)
+        print(instance.description)
+        instance.image = validated_data.get('image', instance.image)
+        tags = validated_data.pop('tags', [])
+        category_ids = validated_data.pop('categories', [])
+        instance.categories.clear()
+        instance.tags.clear()
+
+        for category_id in category_ids:
+            category = Category.objects.get(pk=category_id)
+            instance.categories.add(category)
+        for tag in tags:
+            instance.tags.add(tag)
+
+        instance.save()
+        return instance

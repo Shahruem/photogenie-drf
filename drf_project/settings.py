@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 import datetime
 from pathlib import Path
 
+from constants import TOKEN_LIFETIME_HOURS, TOKEN_REFRESH_HOURS, PAGINATION_PAGE_SIZE
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -69,7 +71,7 @@ REST_FRAMEWORK = {
         'rest_framework.parsers.JSONParser',
     ],
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 10,
+    'PAGE_SIZE': PAGINATION_PAGE_SIZE,
 }
 
 MIDDLEWARE = [
@@ -161,8 +163,8 @@ MEDIA_ROOT = BASE_DIR / 'media'
 MEDIA_URL = '/media/'
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': datetime.timedelta(hours=20),
-    'REFRESH_TOKEN_LIFETIME': datetime.timedelta(minutes=20)
+    'ACCESS_TOKEN_LIFETIME': datetime.timedelta(hours=TOKEN_LIFETIME_HOURS),
+    'REFRESH_TOKEN_LIFETIME': datetime.timedelta(minutes=TOKEN_REFRESH_HOURS)
 }
 
 INTERNAL_IPS = ('127.0.0.1', '0.0.0.0', 'localhost',)

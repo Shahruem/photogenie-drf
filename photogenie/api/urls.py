@@ -1,15 +1,12 @@
-from django.urls import path, include
+from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
-from .views import PostListView, CategoryListView, UserPostViewSet
+from .views import CategoryViewSet, UserPostViewSet
 
-user_post_router = DefaultRouter()
-user_post_router.register('photos', UserPostViewSet)
+router = DefaultRouter()
+router.register('photos', UserPostViewSet)
+router.register('categories', CategoryViewSet)
 
 urlpatterns = [
-    path('categories', CategoryListView.as_view()),
-    path('photos', PostListView.as_view()),
-    # path('photos/upload', CreatePostView.as_view()),
-    # path('photos/<int:pk>', PostRetrieveView.as_view()),
-    path('', include(user_post_router.urls))
+    path('', include(router.urls)),
 ]

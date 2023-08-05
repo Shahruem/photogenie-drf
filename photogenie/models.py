@@ -2,6 +2,7 @@ from django.db import models
 from taggit.managers import TaggableManager
 
 from authentication.models import User
+from constants import IMAGE_PATH
 
 
 class Category(models.Model):
@@ -11,11 +12,11 @@ class Category(models.Model):
         return self.name
 
 
-class Post(models.Model):
+class UserPost(models.Model):
     published_at = models.DateTimeField(auto_now_add=True)
     published_by = models.ForeignKey(User, on_delete=models.CASCADE)
     description = models.TextField()
-    image = models.ImageField(upload_to='images/')
+    image = models.ImageField(upload_to=IMAGE_PATH)
     categories = models.ManyToManyField(Category)
     tags = TaggableManager()
     views = models.PositiveIntegerField(default=0)
