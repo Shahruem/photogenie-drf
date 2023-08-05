@@ -1,4 +1,6 @@
 from django.db.models import Q
+from django.http import FileResponse
+from rest_framework.decorators import action
 from rest_framework import status
 from rest_framework.mixins import (DestroyModelMixin, ListModelMixin,
                                    RetrieveModelMixin)
@@ -64,6 +66,17 @@ class UserPostViewSet(GenericViewSet, RetrieveModelMixin, DestroyModelMixin, Lis
         serializer.is_valid(raise_exception=True)
         serializer.update(instance, serializer.validated_data)
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+    @action(detail=True)
+    def download(self, request, *args, **kwargs):
+        instance = self.get_object()
+        img = instance.image
+        instance.downloads += 1
+        instance.save()
+        response = FileResponse(open(img.path, 'rb'), content_type='image/*')
+        response['dimensions'] = instance.dimensions
+        response['Content-Disposition'] = f'attachment; filename="{img.name}"'
+        return response
 
     def get_serializer_class(self):
         if self.action == 'create' or self.action == 'update':

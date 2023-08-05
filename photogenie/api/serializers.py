@@ -20,6 +20,7 @@ class PostSerializer(TaggitSerializer, serializers.ModelSerializer):
     class Meta:
         model = UserPost
         fields = '__all__'
+        read_only_fields = ['views', 'downloads']
 
 
 class GeneratePostSerializer(TaggitSerializer, serializers.Serializer):

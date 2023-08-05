@@ -20,10 +20,15 @@ class UserPost(models.Model):
     categories = models.ManyToManyField(Category)
     tags = TaggableManager()
     views = models.PositiveIntegerField(default=0)
+    downloads = models.PositiveIntegerField(default=0)
 
     class Meta:
         ordering = ['published_at']
 
     def __str__(self):
         return f'Photo by {self.published_by.username}'
+
+    @property
+    def dimensions(self):
+        return  f'{self.image.height}x{self.image.width}'
 
