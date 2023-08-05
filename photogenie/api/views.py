@@ -21,8 +21,8 @@ class CategoryViewSet(GenericViewSet, ListModelMixin, RetrieveModelMixin):
     serializer_class = CategorySerializer
 
 
-class UserPostViewSet(GenericViewSet, RetrieveModelMixin, DestroyModelMixin, ListModelMixin):
-    queryset = UserPost.objects.all()
+class UserPostViewSet(GenericViewSet, DestroyModelMixin, ListModelMixin):
+    queryset = UserPost.objects.select_related('published_by').prefetch_related('categories', 'tags')
     authentication_classes = (JWTAuthentication,)
 
     def list(self, request, *args, **kwargs):
@@ -50,8 +50,8 @@ class UserPostViewSet(GenericViewSet, RetrieveModelMixin, DestroyModelMixin, Lis
         instance = self.get_object()
         if instance.published_by != request.user:
             instance.views += 1
-            instance.save()
-        return super().retrieve(request, *args, **kwargs)
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     def create(self, request, *args, **kwargs):
         request.data['published_by'] = request.user.id
