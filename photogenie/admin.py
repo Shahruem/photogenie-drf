@@ -1,9 +1,9 @@
 from django.contrib import admin
 
-from photogenie.models import Category, Post
+from photogenie.models import Category, UserPost
 
 
-class PostAdmin(admin.ModelAdmin):
+class UserPostAdmin(admin.ModelAdmin):
     list_display = ['published_by', 'published_at', 'views', 'tag_list']
 
     def get_queryset(self, request):
@@ -14,6 +14,6 @@ class PostAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Category)
-admin.site.register(Post, PostAdmin)
+admin.site.register(UserPost, UserPostAdmin)
 
 
