@@ -6,6 +6,8 @@ from constants import IMAGE_PATH
 
 
 class Category(models.Model):
+    """ Model for Category of Posts. """
+
     name = models.CharField(max_length=128, unique=True)
 
     def __str__(self):
@@ -13,6 +15,8 @@ class Category(models.Model):
 
 
 class UserPost(models.Model):
+    """ Model for posts uploaded by users. """
+
     published_at = models.DateTimeField(auto_now_add=True)
     published_by = models.ForeignKey(User, on_delete=models.CASCADE)
     description = models.TextField()
@@ -30,5 +34,6 @@ class UserPost(models.Model):
 
     @property
     def dimensions(self):
-        return  f'{self.image.height}x{self.image.width}'
+        """ Returns the 'x' seperated height and width of image of the Post instance as dimensions. """
 
+        return f'{self.image.height}x{self.image.width}'

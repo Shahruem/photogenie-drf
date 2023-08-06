@@ -12,7 +12,8 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 import datetime
 from pathlib import Path
 
-from constants import TOKEN_LIFETIME_HOURS, TOKEN_REFRESH_HOURS, PAGINATION_PAGE_SIZE
+from constants import (PAGINATION_PAGE_SIZE, TOKEN_LIFETIME_HOURS,
+                       TOKEN_REFRESH_HOURS)
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -47,6 +48,7 @@ INSTALLED_APPS = [
     'taggit_serializer',
     'django_filters',
     'debug_toolbar',
+    'drf_yasg',
 
     # My apps
     'authentication',

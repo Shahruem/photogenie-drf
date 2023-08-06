@@ -6,6 +6,8 @@ from authentication.models import User
 
 
 class UserSerializer(serializers.ModelSerializer):
+    """ Serializes User model to provide read only functionality. """
+
     class Meta:
         model = User
         fields = ['id', 'username']
@@ -15,11 +17,15 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class SignupSerializer(serializers.ModelSerializer):
+    """ Serializes User model to provide create functionality for user sign-up. """
+
     class Meta:
         model = User
         fields = ['username', 'email', 'password', 'first_name', 'last_name']
 
     def validate(self, attrs):
+        """Validates data including password which uses Django's password validation. """
+
         try:
             validate_password(password=attrs['password'])
         except ValidationError as v:
@@ -28,6 +34,8 @@ class SignupSerializer(serializers.ModelSerializer):
         return attrs
 
     def create(self, validated_data):
+        """ Creates and returns User based on validated data after saving it into database. """
+
         user = User.objects.create_user(**validated_data)
         user.save()
         return user

@@ -7,12 +7,16 @@ from photogenie.models import Category, UserPost
 
 
 class CategorySerializer(serializers.ModelSerializer):
+    """ Serializes Category model with provided fields only. """
+
     class Meta:
         model = Category
         fields = ['id', 'name']
 
 
 class PostSerializer(TaggitSerializer, serializers.ModelSerializer):
+    """ Handles serializing data for Post model for read only operations. """
+
     categories = CategorySerializer(many=True)
     published_by = UserSerializer()
     tags = TagListSerializerField()
@@ -24,6 +28,8 @@ class PostSerializer(TaggitSerializer, serializers.ModelSerializer):
 
 
 class GeneratePostSerializer(TaggitSerializer, serializers.Serializer):
+    """ Handles serializing data for Post model for write only operations. """
+
     categories = serializers.ListSerializer(child=serializers.IntegerField())
     published_by = serializers.IntegerField(required=False)
     tags = TagListSerializerField()
@@ -31,6 +37,8 @@ class GeneratePostSerializer(TaggitSerializer, serializers.Serializer):
     image = serializers.ImageField()
 
     def create(self, validated_data):
+        """ Creates an instance of Post based on validated data and returns it after saving. """
+
         category_ids = validated_data.pop('categories', [])
         published_by_id = validated_data.pop('published_by')
         tags = validated_data.pop('tags', [])
@@ -49,6 +57,8 @@ class GeneratePostSerializer(TaggitSerializer, serializers.Serializer):
         return post
 
     def update(self, instance, validated_data):
+        """ Updates an instance of Post based on validated data and returns it after saving. """
+
         instance.description = validated_data.get('description', instance.description)
         print(instance.description)
         instance.image = validated_data.get('image', instance.image)

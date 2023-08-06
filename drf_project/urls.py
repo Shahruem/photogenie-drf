@@ -19,12 +19,32 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path
+from django.utils.translation import gettext_lazy as _
+from drf_yasg import openapi
+from drf_yasg.views import get_schema_view
+from rest_framework import permissions
+from rest_framework_simplejwt.authentication import JWTAuthentication
+
+schema_view = get_schema_view(
+    openapi.Info(
+        title=_('Photogenie API documentation'),
+        default_version='v1',
+        description=_('API documentation on Photogenie project that provides a platform to explore and upload'
+                      ' creative images of different genres through photogenie app and does authentication'
+                      ' through authentication app.\nFor authentication, it uses JWT token pair.'),
+    ),
+    public=True,
+    permission_classes=[permissions.AllowAny,],
+    authentication_classes=[JWTAuthentication,],
+)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('__debug__/', include(debug_toolbar.urls)),
     path('', include('authentication.urls')),
     path('', include('photogenie.urls')),
+    path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
+    path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
 ]
 
 if settings.DEBUG:
