@@ -112,7 +112,6 @@ class UserPostViewSet(GenericViewSet, DestroyModelMixin, ListModelMixin):
     def create(self, request, *args, **kwargs):
         """
         Creates a Post with the given JSON formatted data.
-
         [AUTHENTICATION REQUIRED]
         """
 
@@ -124,8 +123,7 @@ class UserPostViewSet(GenericViewSet, DestroyModelMixin, ListModelMixin):
 
     def update(self, request, *args, **kwargs):
         """
-        Updated a Post with the given JSON formatted data.
-
+        Updates  a Post with the given JSON formatted data.
         [AUTHENTICATION REQUIRED]
         """
 
@@ -138,7 +136,6 @@ class UserPostViewSet(GenericViewSet, DestroyModelMixin, ListModelMixin):
     def destroy(self, request, *args, **kwargs):
         """
         Deletes the Post with given ID only if it belongs to the logged-in user.
-
         [AUTHENTICATION REQUIRED]
         """
 
