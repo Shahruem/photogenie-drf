@@ -36,6 +36,8 @@ class CategoryViewSet(GenericViewSet, ListModelMixin, RetrieveModelMixin):
 
 
 class UserPostViewSet(GenericViewSet, DestroyModelMixin, ListModelMixin):
+    """ This viewset handles CRUD and download operations for UserPost model. """
+
     queryset = UserPost.objects.select_related('published_by').prefetch_related('categories', 'tags')
     authentication_classes = (JWTAuthentication,)
 
