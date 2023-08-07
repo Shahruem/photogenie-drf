@@ -1,5 +1,3 @@
-from .validations import ValidationSerializer
-
 
 def validate_data(serializer_class, data):
     """ Validates data according to provided serializer class. """

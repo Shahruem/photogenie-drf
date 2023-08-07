@@ -2,7 +2,7 @@ from django.db import models
 from taggit.managers import TaggableManager
 
 from authentication.models import User
-from constants import IMAGE_PATH
+from photogenie.constants import IMAGE_PATH
 
 
 class Category(models.Model):

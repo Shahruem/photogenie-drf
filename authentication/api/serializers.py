@@ -13,6 +13,10 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ['id', 'username']
 
     def run_validation(self, data=None):
+        """
+        Skips validation for the user instance because Model serializer only allows unique User each time it is
+        called
+        """
         pass
 
 
