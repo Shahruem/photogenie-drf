@@ -1,8 +1,7 @@
 from django.http import FileResponse
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status
-from rest_framework.mixins import (DestroyModelMixin, ListModelMixin,
-                                   RetrieveModelMixin)
+from rest_framework.mixins import ListModelMixin, RetrieveModelMixin, DestroyModelMixin
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
@@ -25,7 +24,7 @@ class CategoryViewSet(GenericViewSet, ListModelMixin, RetrieveModelMixin):
     serializer_class = CategorySerializer
 
 
-class UserPostViewSet(GenericViewSet, DestroyModelMixin, ListModelMixin):
+class UserPostViewSet(GenericViewSet, ListModelMixin, DestroyModelMixin):
     """ This viewset handles CRUD and download operations for UserPost model. """
 
     queryset = UserPost.objects.select_related('published_by').prefetch_related('categories', 'tags')
