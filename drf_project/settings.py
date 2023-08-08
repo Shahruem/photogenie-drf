@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'django_filters',
     'debug_toolbar',
     'drf_yasg',
+    'coverage',
 
     # My apps
     'authentication',
@@ -190,4 +191,12 @@ DEBUG_TOOLBAR_PANELS = [
     'debug_toolbar.panels.signals.SignalsPanel',
     'debug_toolbar.panels.logging.LoggingPanel',
     'debug_toolbar.panels.redirects.RedirectsPanel',
+]
+
+COVERAGE_MODULE_EXCLUDES = [
+    'manage.py',
+    'wsgi.py',
+    'settings.py',
+    'urls.py',
+    '*/migrations/*',
 ]
