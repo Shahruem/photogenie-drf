@@ -13,7 +13,7 @@ from photogenie.models import Category, UserPost
 from photogenie.api.serializers import (CategorySerializer, GeneratePostSerializer,
                                         PostSerializer)
 from photogenie.api.documentation import get_user_posts_query_parameters
-from photogenie.api.utils import filter_queryset
+from photogenie.api.utils import filter_user_posts
 
 
 class CategoryViewSet(GenericViewSet, ListModelMixin, RetrieveModelMixin):
@@ -41,7 +41,7 @@ class UserPostViewSet(GenericViewSet, ListModelMixin, DestroyModelMixin):
         published_by = self.request.query_params.get('published_by', None)
         category = self.request.query_params.get('category', None)
         ordering = self.request.query_params.get('ordering', None)
-        self.queryset = filter_queryset(
+        self.queryset = filter_user_posts(
             queryset=self.queryset,
             search=search,
             ordering=ordering,
@@ -76,15 +76,17 @@ class UserPostViewSet(GenericViewSet, ListModelMixin, DestroyModelMixin):
 
     def update(self, request, *args, **kwargs):
         """
-        Updates  a Post with the given JSON formatted data.
+        Updates a Post with the given JSON formatted data.
         [AUTHENTICATION REQUIRED]
         """
 
         instance = self.get_object()
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.update(instance, serializer.validated_data)
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        if instance.published_by.id == request.user.id:
+            serializer = self.get_serializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            serializer.update(instance, serializer.validated_data)
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response(status=status.HTTP_403_FORBIDDEN)
 
     def destroy(self, request, *args, **kwargs):
         """
@@ -123,7 +125,7 @@ class DownloadImageView(RetrieveAPIView):
     """ Retrieves the image to be downloaded of the requested post with ID and increases download count. """
 
     queryset = UserPost.objects.select_related('published_by').prefetch_related('categories', 'tags')
-    permission_classes = (AllowAny,)
+    permission_classes = (IsAuthenticated,)
     serializer_class = PostSerializer
 
     def retrieve(self, request, *args, **kwargs):

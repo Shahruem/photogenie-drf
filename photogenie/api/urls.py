@@ -4,10 +4,10 @@ from rest_framework.routers import DefaultRouter
 from .views import CategoryViewSet, UserPostViewSet, DownloadImageView
 
 router = DefaultRouter()
-router.register('photos', UserPostViewSet)
+router.register('user-posts', UserPostViewSet)
 router.register('categories', CategoryViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),
-    path('photos/<int:pk>/download', DownloadImageView.as_view()),
+    path('user-posts/<int:pk>/download', DownloadImageView.as_view(), name='download-image'),
 ]

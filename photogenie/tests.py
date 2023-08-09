@@ -64,7 +64,7 @@ class UserPostTestCase(APITestCase):
         self.first_post = UserPost.objects.create(
             published_by=self.first_user,
             description='Post 1 description',
-            image='messi.jpg',
+            image='images/messi.jpg',
             views=10,
             downloads=5,
         )
@@ -74,7 +74,7 @@ class UserPostTestCase(APITestCase):
         self.second_post = UserPost.objects.create(
             published_by=self.second_user,
             description='Post 2 description',
-            image='superman.jpg',
+            image='images/superman.jpg',
             views=5,
             downloads=2,
         )
@@ -140,7 +140,7 @@ class UserPostTestCase(APITestCase):
         response = self.client.get(url)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['views'], 10)
+        self.assertEqual(response.data['views'], self.first_post.views)
 
     def test_retrieve_by_non_author(self):
         """ Test retrieving a post not published by the logged-in user so the views should increment """
@@ -153,9 +153,101 @@ class UserPostTestCase(APITestCase):
         self.assertEqual(response.data['views'], 11)
 
     def test_retrieve_non_existent(self):
-        # Test retrieving a post that does not exist so expecting 404 Not Found
+        """ Test retrieving a post that does not exist so expecting 404 Not Found """
 
         url = reverse('userpost-detail', kwargs={'pk': 100})
         response = self.client.get(url)
 
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_update_by_non_author(self):
+        """ Tests updating the post with non-author """
+
+        self.client.force_authenticate(user=self.first_user)
+        url = reverse('userpost-detail', kwargs={'pk': self.second_post.id})
+
+        new_data = {
+            'description': 'Updated description',
+            'categories': [self.second_category.id],
+            'tags': ['tag4', 'tag5'],
+            'image': 'images/superman.jpg'
+        }
+
+        response = self.client.put(url, new_data)
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_update_unauthorized(self):
+        """ Tests updating without authorization """
+
+        url = reverse('userpost-detail', kwargs={'pk': self.first_post.id})
+
+        new_data = {
+            'description': 'Updated description',
+        }
+
+        response = self.client.put(url, new_data)
+
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.first_post.refresh_from_db()
+        self.assertNotEqual(self.first_post.description, new_data['description'])
+
+    def test_destroy(self):
+        """ Tests destroying User Post by its author """
+
+        self.client.force_authenticate(user=self.first_user)
+
+        url = reverse('userpost-detail', kwargs={'pk': self.first_post.id})
+
+        response = self.client.delete(url)
+
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertFalse(UserPost.objects.filter(pk=self.first_post.id).exists())
+
+    def test_destroy_unauthenticated(self):
+        """ Tests destroying User post unauthenticated """
+
+        url = reverse('userpost-detail', kwargs={'pk': self.first_post.id})
+
+        response = self.client.delete(url)
+
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertTrue(UserPost.objects.filter(pk=self.first_post.id).exists())
+
+    def test_destroy_by_non_author(self):
+        """ Tests destroying User post from a non-author """
+
+        self.client.force_authenticate(user=self.first_user)
+        url = reverse('userpost-detail', kwargs={'pk': self.second_post.id})
+
+        response = self.client.delete(url)
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_download_image_authenticated(self):
+        """ Tests downloading the image of User Post with authenticated user """
+
+        self.client.force_authenticate(user=self.first_user)
+
+        url = reverse('download-image', kwargs={'pk': self.first_post.id})
+
+        current_downloads = self.first_post.downloads
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response['Content-Type'], 'image/*')
+        self.assertEqual(response['Content-Disposition'], f'attachment; filename="{self.first_post.image.name}"')
+        self.first_post.refresh_from_db()
+        self.assertEqual(self.first_post.downloads, current_downloads + 1)
+
+    def test_download_image_unauthenticated(self):
+        """ Tests downloading the image of User Post without authenticated user """
+
+        url = reverse('download-image', kwargs={'pk': self.first_post.id})
+
+        current_downloads = self.first_post.downloads
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.first_post.refresh_from_db()
+        self.assertEqual(self.first_post.downloads, current_downloads)

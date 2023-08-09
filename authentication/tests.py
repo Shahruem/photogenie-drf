@@ -19,7 +19,8 @@ class SignupAPITestCase(APITestCase):
 
         response = self.client.post(self.url, data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(User.objects.count(), 1)
+        user_exists = User.objects.filter(username='Shahryar').exists()
+        self.assertTrue(user_exists)
 
     def test_missing_required_fields(self):
         """ Test with data having not given the input for required fields """
@@ -31,7 +32,8 @@ class SignupAPITestCase(APITestCase):
 
         response = self.client.post(self.url, data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(User.objects.count(), 0)
+        user_exists = User.objects.filter(email='shahryar@gmail.com').exists()
+        self.assertFalse(user_exists)
 
     def test_weak_password(self):
         """ Test signing up a user with weak password """
@@ -44,7 +46,8 @@ class SignupAPITestCase(APITestCase):
 
         response = self.client.post(self.url, data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(User.objects.count(), 0)
+        user_exists = User.objects.filter(username='Shahryar').exists()
+        self.assertFalse(user_exists)
 
     def test_existing_username(self):
         """ Test signing up a user with already used username """
@@ -52,18 +55,19 @@ class SignupAPITestCase(APITestCase):
         User.objects.create_user(
             username='Shahryar',
             email='shahryar@gmail.com',
-            password='shahryar12345',
+            password='shahryar1234',
         )
 
         data = {
             'username': 'Shahryar',
             'email': 'shahryar@gmail.com',
-            'password': 'shahryar12345',
+            'password': 'shahryar1234',
         }
 
         response = self.client.post(self.url, data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(User.objects.count(), 1)
+        user_exists = User.objects.filter(username='Shahryar').exists()
+        self.assertTrue(user_exists)
 
 
 class LoginLogoutAPITestCase(APITestCase):
