@@ -1,8 +1,14 @@
 from django.db.models import Q
 
 
-def filter_user_posts(queryset, search, ordering, published_by, category):
-    """ Filters the queryset with respect to the specified parameters, gives priority to search parameter. """
+def filter_user_posts(queryset, query_parameters):
+    """ Filters the queryset with respect to the specified query parameters, gives priority to search parameter. """
+
+    search = query_parameters.get('search', None)
+    published_by = query_parameters.get('published_by', None)
+    category = query_parameters.get('category', None)
+    ordering = query_parameters.get('ordering', None)
+    print(search)
 
     if search:
         q_published_by = Q(published_by__username=search)

@@ -14,6 +14,7 @@ from photogenie.api.serializers import (CategorySerializer, GeneratePostSerializ
                                         PostSerializer)
 from photogenie.api.documentation import get_user_posts_query_parameters
 from photogenie.api.utils import filter_user_posts
+from photogenie.api.validations import QueryValidationSerializer
 
 
 class CategoryViewSet(GenericViewSet, ListModelMixin, RetrieveModelMixin):
@@ -37,17 +38,9 @@ class UserPostViewSet(GenericViewSet, ListModelMixin, DestroyModelMixin):
     def list(self, request, *args, **kwargs):
         """ Generates a paginated list of all Posts in JSON format. """
 
-        search = self.request.query_params.get('search', None)
-        published_by = self.request.query_params.get('published_by', None)
-        category = self.request.query_params.get('category', None)
-        ordering = self.request.query_params.get('ordering', None)
-        self.queryset = filter_user_posts(
-            queryset=self.queryset,
-            search=search,
-            ordering=ordering,
-            published_by=published_by,
-            category=category
-        )
+        serializer = QueryValidationSerializer(data=self.request.query_params)
+        serializer.is_valid(raise_exception=True)
+        self.queryset = filter_user_posts(self.queryset, serializer.validated_data)
         return super().list(request, *args, **kwargs)
 
     def retrieve(self, request, *args, **kwargs):
