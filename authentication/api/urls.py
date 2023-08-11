@@ -1,10 +1,11 @@
 from django.urls import path
+from rest_framework_simplejwt.views import (TokenBlacklistView,
+                                            TokenObtainPairView)
 
-from .views import LoginAPIView, LogoutAPIView, SignupAPIView
+from authentication.api.views import SignupAPIView
 
 urlpatterns = [
-    path('api/login', LoginAPIView.as_view()),
-    path('api/signup', SignupAPIView.as_view()),
-    path('api/logout', LogoutAPIView.as_view()),
+    path('login', TokenObtainPairView.as_view(), name='login'),
+    path('signup', SignupAPIView.as_view(), name='signup'),
+    path('logout', TokenBlacklistView.as_view(), name='logout'),
 ]
-
