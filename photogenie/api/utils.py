@@ -8,7 +8,6 @@ def filter_user_posts(queryset, query_parameters):
     published_by = query_parameters.get('published_by', None)
     category = query_parameters.get('category', None)
     ordering = query_parameters.get('ordering', None)
-    print(search)
 
     if search:
         q_published_by = Q(published_by__username=search)

@@ -1,13 +1,13 @@
 from authentication.api.validations import ValidationSerializer
 from rest_framework import serializers
-import re
+from re import match
 
 
 class QueryValidationSerializer(ValidationSerializer):
     published_by = serializers.CharField(required=False)
     category = serializers.CharField(required=False)
     search = serializers.CharField(required=False)
-    ordering = serializers.CharField(required=False)
+    ordering = serializers.ChoiceField(choices=['views', 'downloads'], required=False)
 
     def validate(self, attrs):
         """
@@ -19,13 +19,10 @@ class QueryValidationSerializer(ValidationSerializer):
         published_by = attrs.get('published_by', None)
         category = attrs.get('category', None)
         ordering = attrs.get('ordering', None)
-        allowed_orderings = ['views', 'downloads']
 
-        if search and any([published_by, category, ordering]):
+        if search and (published_by or category or ordering):
             raise serializers.ValidationError({'error': 'Either search is allowed or the other query parameters.'})
-        if ordering and ordering not in allowed_orderings:
-            raise serializers.ValidationError({'error': 'Ordering can only be according to views or downloads.'})
-        if category and not re.match(r'^[a-z]*$', category):
-            raise serializers.ValidationError({'error': 'Only lower-cased characters are allowed in category.'})
+        if category:
+            attrs['category'] = category.lower()
 
         return attrs
